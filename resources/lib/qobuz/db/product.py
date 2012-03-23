@@ -22,15 +22,11 @@ class Product(Itable):
                              }
 
     def insert_json(self, handle, json):
-        print "Insert json"
         where = {}
         for field in self.fields_name.keys():
-            print "Looking field: " + field
             f = self.fields_name[field]
             if not f['jsonmap']: continue
             value = self.get_property(json, f['jsonmap'])
-            print "JKEY: " + repr(value)
             if not value: continue
             where[field] = value
-        print pprint.pformat(where)
         return self.insert(handle, where)

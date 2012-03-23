@@ -75,7 +75,7 @@ class Node_playlist(Node):
         self.cache = Cache_playlist(id)
         return True
 
-    def _build_down_sql(self, xbmc_directory, lvl, flag = None):
+    def _build_down(self, xbmc_directory, lvl, flag = None):
         info(self, "Build-down playlist")
         if not self.set_cache():
             error(self, "Cannot set cache!")
@@ -91,7 +91,7 @@ class Node_playlist(Node):
             print pprint.pformat(row.keys())
             node = Node_track()
             node.set_id(row['id'])
-        self.add_child(node)
+            self.add_child(node)
 #            print pprint.pformat(row)
 #            node = None
 #            if self.packby == 'album':
@@ -111,7 +111,7 @@ class Node_playlist(Node):
 #        del self._data['tracks']
 
 
-    def _build_down(self, xbmc_directory, lvl, flag = None):
+    def _build_down_ori(self, xbmc_directory, lvl, flag = None):
         info(self, "Build-down playlist")
         if not self.set_cache():
             error(self, "Cannot set cache!")

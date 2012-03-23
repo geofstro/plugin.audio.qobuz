@@ -67,6 +67,7 @@ class Node_track(Node):
         return super(Node_track, self).make_url(mode)
 
     def get_label(self, format = "%a - %t"):
+        return "%s - %s" % (self.get_artist(), self.get_title())
         format = format.replace("%a", self.get_artist())
         format = format.replace("%t", self.get_title())
         format = format.replace("%A", self.get_album())
@@ -81,12 +82,16 @@ class Node_track(Node):
         return False
 
     def get_composer(self):
-        return self.get_property(('composer', 'name'))
+        return ''
+        return self.db_row['composer']
+        #return self.get_property(('composer', 'name'))
 
     def get_interpreter(self):
+        return ''
         return self.get_property(('interpreter', 'name'))
 
     def get_album(self):
+        return ''
         album = self.get_property(('album', 'title'))
         if album: return album
         if not self.parent: return ''
@@ -96,6 +101,7 @@ class Node_track(Node):
 
     def get_image(self):
         image = self.get_property(('album', 'image', 'large'))
+        image = self.db_row['image']
         if image: return image.replace('_230.', '_600.')
         if not self.parent: return ''
         if self.parent.get_type() & (NodeFlag.TYPE_PRODUCT | NodeFlag.TYPE_PLAYLIST):
@@ -113,7 +119,7 @@ class Node_track(Node):
         return self.get_property(('position'))
 
     def get_title(self):
-        return self.get_property('title')
+        return self.db_row['title']
 
     def get_genre(self):
         genre = self.get_property(('album', 'genre', 'name'))
@@ -130,9 +136,10 @@ class Node_track(Node):
         return data['streaming_url']
 
     def get_artist(self):
-        s = self.get_interpreter()
-        if s: return s
-        return self.get_composer()
+        types = ['artist', 'interpreter', 'composer']
+        for type in types:
+            if type in self.db_row and self.db_row[type]: return self.db_row[type]
+        return 'Unknow artist'
 
     def get_artist_id(self):
         #s = self.get_property(('artist', 'id'))
@@ -147,7 +154,9 @@ class Node_track(Node):
         return None
 
     def get_track_number(self):
-        return self.db_row['track_number']
+        data = self.db_row['track_number']
+        print "TRACK NUMBER: " + str(data)
+        return data
         #return self.get_property(('track_number'))
 
     def get_media_number(self):
@@ -163,7 +172,7 @@ class Node_track(Node):
         return -1
 
     def get_year(self):
-        data = self.db_row['release_date']
+        date = self.db_row['release_date']
 #        date = self.get_property(('album', 'release_date'))
         if not date and self.parent and self.parent.get_type() & NodeFlag.TYPE_PRODUCT:
             return self.parent.get_year()
@@ -196,12 +205,12 @@ class Node_track(Node):
         return mime
 
     def make_XbmcListItem(self):
-#        row = qobuz.db.get_track(self.id)
-#        if not row:
-#            warn(self, "Cannot make item without data")
-#            return None
-#        print "GOOOOOOOOOOOOOOOOT: " + pprint.pformat(row)
-#        self.db_row = row
+        row = qobuz.db.get_track(self.id)
+        if not row:
+            warn(self, "Cannot make item without data")
+            return None
+        print "GOOOOOOOOOOOOOOOOT: " + pprint.pformat(row)
+        self.db_row = row
         media_number = self.get_media_number()
         if not media_number: media_number = 1
         else: media_number = int(media_number)
@@ -218,6 +227,8 @@ class Node_track(Node):
                                 self.get_image(),
                                 self.get_image(),
                                 url)
+        del self.db_row
+        return item
         if not item:
             warn(self, "Cannot create xbmc list item")
             return None

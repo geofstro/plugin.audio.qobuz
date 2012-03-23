@@ -14,13 +14,11 @@ class Itable(object):
         self.auto_fetch = True
 
     def _create(self, handle, query):
-        print "Query: " + query
         cursor = handle.cursor()
         if not cursor.execute(query):
             return False
         handle.commit()
         cursor.close()
-        print "Table created: " + self.table_name
         return True
 
     def create(self, handle):
@@ -39,7 +37,6 @@ class Itable(object):
     def get(self, handle, id):
         cursor = handle.cursor()
         query = "SELECT * FROM %s WHERE %s = ?" % (self.table_name, self.pk)
-        print "query: " + query
         cursor.execute(query, (id,))
         row = cursor.fetchone()
         if not row:
@@ -69,6 +66,7 @@ class Itable(object):
             return False
         placeholder = '? ' + (',? ' * (len(where) - 1))
         query = "INSERT INTO %s (%s) VALUES (%s)" % (self.table_name, ','.join(where.keys()), placeholder)
+        print "Query: " + query
         cursor = handle.cursor()
         cursor.execute(query, where.values())
         handle.commit()

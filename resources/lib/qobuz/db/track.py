@@ -23,8 +23,8 @@ class Track(Itable):
                             }
 
     def fetch(self, handle, id):
-        from album import Album
-        print "Fetching track with id: " + str(id)
+        from product import Product
+        from artist import Artist
         jtrack = qobuz.api.get_track(id)
         if not jtrack:
             print "Cannot fetch data"
@@ -32,29 +32,45 @@ class Track(Itable):
         print pprint.pformat(jtrack)
         where = {}
         if 'album' in jtrack:
-            A = Album()
-            album = A.get(handle, jtrack['album']['id'])
+            P = Product()
+            album = P.get(handle, jtrack['album']['id'])
             if not album:
-                A.insert_json(handle, jtrack['album'])
+                P.insert_json(handle, jtrack['album'])
         for field in self.fields_name.keys():
             f = self.fields_name[field]
             if not f['jsonmap']: continue
             value = self.get_property(jtrack, f['jsonmap'])
             if not value: continue
             where[field] = value
+        if 'interpreter' in jtrack:
+            I = Artist()
+            interpreter = I.get(handle, jtrack['interpreter'])
+            if not interpreter:
+                I.insert(handle, jtrack['interpreter'])
         artist = None
         artist_type = ('artist', 'interpreter', 'composer')
         for a in artist_type:
             if a in jtrack and jtrack[a]['name'] and jtrack[a]['name'] != 'None':
                 artist = jtrack[a]
                 break
-        where['ZARTIST'] = artist['id']
         self.insert(handle, where)
-        print pprint.pformat(where)
         return False
 
     def insert_json(self, handle, json):
+        print "JSON: " + pprint.pformat(json)
+        from product import Product
+        from artist import Artist
         where = {}
+        subtype = ['album', 'interpreter', 'composer']
+        for type in subtype:
+            if type in json:
+                db = None
+                if type == 'album': db = Product()
+                elif type == 'interpreter': db = Artist()
+                elif type == 'composer': db = Artist()
+                if not 'id' in json[type] or not json[type]['id']: continue
+                if not db.get(handle, int(json[type]['id'])):
+                    db.insert_json(handle, json[type])
         for field in self.fields_name.keys():
             f = self.fields_name[field]
             if not f['jsonmap']: continue

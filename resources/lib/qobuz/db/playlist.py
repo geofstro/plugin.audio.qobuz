@@ -1,7 +1,7 @@
 import pprint
 from itable import Itable
 
-class Artist(Itable):
+class Playlist(Itable):
     def __init__(self, id = None):
         super(Artist, self).__init__(id)
         self.table_name = 'artist'
@@ -12,6 +12,7 @@ class Artist(Itable):
                              }
 
     def insert_json(self, handle, json):
+        print "INSERT ARTIST"
         where = {}
         for field in self.fields_name.keys():
             f = self.fields_name[field]
@@ -19,4 +20,5 @@ class Artist(Itable):
             value = self.get_property(json, f['jsonmap'])
             if not value: continue
             where[field] = value
+        print pprint.pformat(where)
         return self.insert(handle, where)
