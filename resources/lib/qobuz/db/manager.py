@@ -70,9 +70,23 @@ class Manager():
                 return None
         return row
 
+    def get_track(self, id):
+        cursor = self.handle.cursor()
+        query = "SELECT * FROM track as t " \
+        "LEFT JOIN product as p " \
+        "ON t.album_id = p.id " \
+        "WHERE t.id = ? "
+        print "Query: " + query
+        cursor.execute(query, (id,))
+        row = cursor.fetchone()
+        if not row:
+            print "No result"
+            return None
+        return row
+
     def insert(self, table, where):
         if not table in self.tables:
-            print "Invalid table" + table
+            print "Invalid table " + table
             return False
         T = self.tables[table]
         if not T.pk in where.keys():
@@ -82,6 +96,22 @@ class Manager():
             print "Cannot insert data, primary key already present"
             return False
         return T.insert(self.handle, where)
+
+    def insert_json(self, table, json):
+        if not table in self.tables:
+            print "Invalid table " + table
+            return False
+        T = self.tables[table]
+        if not T.pk in json:
+            print "JSON Data doesn't contain 'id'"
+            return False
+        row = T.get(self.handle, json['id'])
+        if row:
+            print "Cannot insert data, primary key already present"
+            return row
+        if not T.insert_json(self.handle, json):
+            return None
+        return T.get(self.handle, json['id'])
 
     def exists(self):
         return os.path.exists(self.path)

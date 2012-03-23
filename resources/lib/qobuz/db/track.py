@@ -7,7 +7,7 @@ class Track(Itable):
         super(Track, self).__init__(id)
         self.table_name = 'track'
         self.pk = 'id'
-        self.fields_name = {'id'               : {'jsonmap': None, 'sqltype': 'INTEGER PRIMARY KEY'},
+        self.fields_name = {'id'               : {'jsonmap': 'id', 'sqltype': 'INTEGER PRIMARY KEY'},
                             'album_id'        : {'jsonmap': ('album', 'id'), 'sqltype':  'INTEGER'},
                             'composer_id'        : {'jsonmap': ('composer', 'id'), 'sqltype':  'INTEGER'},
                             'copyright'          : {'jsonmap': 'copyright', 'sqltype': 'VARCHAR'},
@@ -19,6 +19,7 @@ class Track(Itable):
                             'track_number': {'jsonmap': 'track_number', 'sqltype': 'INTEGER'},
                             'version': {'jsonmap': 'version', 'sqltype': 'VARCHAR'},
                             'work': {'jsonmap': 'work', 'sqltype': 'VARCHAR'},
+                            'genre_id': {'jsonmap': ('album', 'genre', 'id'), 'sqltype': 'INTEGER'},
                             }
 
     def fetch(self, handle, id):
@@ -51,4 +52,15 @@ class Track(Itable):
         self.insert(handle, where)
         print pprint.pformat(where)
         return False
+
+    def insert_json(self, handle, json):
+        where = {}
+        for field in self.fields_name.keys():
+            f = self.fields_name[field]
+            if not f['jsonmap']: continue
+            value = self.get_property(json, f['jsonmap'])
+            if not value: continue
+            where[field] = value
+        print pprint.pformat(where)
+        return self.insert(handle, where)
 

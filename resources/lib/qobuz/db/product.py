@@ -33,5 +33,4 @@ class Product(Itable):
             if not value: continue
             where[field] = value
         print pprint.pformat(where)
-        self.insert(handle, where)
-        return False
+        return self.insert(handle, where)

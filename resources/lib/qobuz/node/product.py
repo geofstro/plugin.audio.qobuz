@@ -65,6 +65,7 @@ class Node_product(Node):
             error(self, "Cannot set product cache")
             return False
         data = self.cache.fetch_data(xbmc_directory.Progress)
+
         if not data:
             warn(self, "Cannot fetch product data")
             return False
@@ -76,6 +77,9 @@ class Node_product(Node):
             node = Node_track()
             node.set_data(track)
             self.add_child(node)
+
+    def _build_down_sql(self, xbmc_directory, lvl, flag = None, progress = None):
+        pass
 
     def _filter_tracks(self, tracks):
         ltracks = []

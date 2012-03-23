@@ -135,29 +135,36 @@ class Node_track(Node):
         return self.get_composer()
 
     def get_artist_id(self):
-        s = self.get_property(('artist', 'id'))
+        #s = self.get_property(('artist', 'id'))
+        s = self.db_row['artist_id']
         if s: return int(s)
-        s = self.get_property(('composer', 'id'))
+        #s = self.get_property(('composer', 'id'))
+        s = self.db_row['composer_id']
         if s: return int(s)
-        s = self.get_property(('interpreter', 'id'))
+        s = self.db_row['interpreter_id']
+        #s = self.get_property(('interpreter', 'id'))
         if s: return int(s)
         return None
 
     def get_track_number(self):
-        return self.get_property(('track_number'))
+        return self.db_row['track_number']
+        #return self.get_property(('track_number'))
 
     def get_media_number(self):
-        return self.get_property(('media_number'))
+        return self.db_row['media_number']
+        #return self.get_property(('media_number'))
 
     def get_duration(self):
-        duration = self.get_property(('duration'))
+        #duration = self.get_property(('duration'))
+        duration = self.db_row['duration']
         if duration:
             (sh, sm, ss) = duration.strip().split(':')
             return (int(sh) * 3600 + int(sm) * 60 + int(ss))
         return -1
 
     def get_year(self):
-        date = self.get_property(('album', 'release_date'))
+        data = self.db_row['release_date']
+#        date = self.get_property(('album', 'release_date'))
         if not date and self.parent and self.parent.get_type() & NodeFlag.TYPE_PRODUCT:
             return self.parent.get_year()
         year = 0
@@ -189,6 +196,12 @@ class Node_track(Node):
         return mime
 
     def make_XbmcListItem(self):
+#        row = qobuz.db.get_track(self.id)
+#        if not row:
+#            warn(self, "Cannot make item without data")
+#            return None
+#        print "GOOOOOOOOOOOOOOOOT: " + pprint.pformat(row)
+#        self.db_row = row
         media_number = self.get_media_number()
         if not media_number: media_number = 1
         else: media_number = int(media_number)

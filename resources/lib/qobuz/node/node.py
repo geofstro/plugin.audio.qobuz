@@ -44,6 +44,7 @@ class Node(object):
         self.is_folder = True
         self._data = None
         self.auto_set_cache = False
+        self.db_row = None
 
 
     def set_cache(self):

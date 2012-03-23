@@ -47,6 +47,7 @@ class Itable(object):
             return None
         return row
 
+
     def get_property(self, struct, path):
         if not struct: return None
         if not path: return None
@@ -56,7 +57,9 @@ class Itable(object):
             return None
         if isinstance(path, (list, tuple)):
             if len(path) < 0: return None
-            if len(path) == 1: return struct[path[0]]
+            if len(path) == 1:
+                if not path[0] in struct: return None
+                return struct[path[0]]
             if not path[0] in struct: return None
             return self.get_property(struct[path[0]], path[1:])
 
@@ -68,10 +71,6 @@ class Itable(object):
         query = "INSERT INTO %s (%s) VALUES (%s)" % (self.table_name, ','.join(where.keys()), placeholder)
         cursor = handle.cursor()
         cursor.execute(query, where.values())
-#        if handle.total_changes != 1:
-#            print "Error: Cannot insert data into table: " + self.table_name
-#            cursor.close()
-#            return False
         handle.commit()
         cursor.close()
         return True

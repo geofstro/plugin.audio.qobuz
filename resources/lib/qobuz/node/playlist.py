@@ -57,7 +57,7 @@ class Node_playlist(Node):
 
     def set_is_my_playlist(self, b):
         self.is_my_playlist = b
-            
+
     def set_is_current(self, b):
         self.b_is_current = b
 
@@ -74,6 +74,42 @@ class Node_playlist(Node):
             return False
         self.cache = Cache_playlist(id)
         return True
+
+    def _build_down_sql(self, xbmc_directory, lvl, flag = None):
+        info(self, "Build-down playlist")
+        if not self.set_cache():
+            error(self, "Cannot set cache!")
+            return False
+        data = self.cache.fetch_data(xbmc_directory.Progress)
+        if not data:
+            warn(self, "Build-down: Cannot fetch playlist data")
+            return False
+        self.set_data(data)
+        albumseen = {}
+        for jtrack in data['tracks']:
+            row = qobuz.db.insert_json('track', jtrack)
+            print pprint.pformat(row.keys())
+            node = Node_track()
+            node.set_id(row['id'])
+        self.add_child(node)
+#            print pprint.pformat(row)
+#            node = None
+#            if self.packby == 'album':
+#                jalbum = jtrack['album']
+#                if jalbum['id'] in albumseen: continue
+#                keys = [ 'artist', 'interpreter', 'composer']
+#                for k in keys:
+#                    if k in jtrack: jalbum[k] = jtrack[k]
+#                if 'image' in jtrack: jalbum['image'] = jtrack['image']
+#                node = Node_product()
+#                node.set_data(jalbum)
+#                albumseen[jalbum['id']] = node
+#            else:
+#                node = Node_track()
+#                node.set_data(jtrack)
+#            self.add_child(node)
+#        del self._data['tracks']
+
 
     def _build_down(self, xbmc_directory, lvl, flag = None):
         info(self, "Build-down playlist")
@@ -103,17 +139,17 @@ class Node_playlist(Node):
                 node.set_data(jtrack)
             self.add_child(node)
         del self._data['tracks']
-        
+
     def get_name(self):
         name = self.get_property('name')
         return name
-    
+
     def get_owner(self):
         return self.get_property(('owner', 'name'))
-            
+
     def get_description(self):
         return self.get_property('description')
-    
+
     def make_XbmcListItem(self):
         color_item = qobuz.addon.getSetting('color_item')
         color_pl = qobuz.addon.getSetting('color_item_playlist')
@@ -123,8 +159,8 @@ class Node_playlist(Node):
         url = self.make_url()
         if self.b_is_current:
             label = ''.join(('-o] ', qobuz.utils.color(color_item, label), ' [o-'))
-        if not self.is_my_playlist: 
-            label = qobuz.utils.color(color_item, owner) + ' - ' + self.get_name() 
+        if not self.is_my_playlist:
+            label = qobuz.utils.color(color_item, owner) + ' - ' + self.get_name()
         label = qobuz.utils.color(color_pl, label)
         item = xbmcgui.ListItem(label,
                                 owner,
@@ -142,24 +178,24 @@ class Node_playlist(Node):
         color = qobuz.addon.getSetting('color_item')
         color_warn = qobuz.addon.getSetting('color_item_caution')
         label = self.get_label()
-        
+
         ''' SET AS CURRENT '''
         url = self.make_url(Mode.PLAYLIST_SELECT_CURRENT)
-        menuItems.append((qobuz.utils.color(color, qobuz.lang(39007).encode('utf8', 'replace') + ': ') + label, "XBMC.RunPlugin("+url+")"))
-                
+        menuItems.append((qobuz.utils.color(color, qobuz.lang(39007).encode('utf8', 'replace') + ': ') + label, "XBMC.RunPlugin(" + url + ")"))
+
         ''' CREATE '''
         url = self.make_url(Mode.PLAYLIST_CREATE)
-        menuItems.append((qobuz.utils.color(color, qobuz.lang(39008)), "XBMC.RunPlugin("+url+")"))
+        menuItems.append((qobuz.utils.color(color, qobuz.lang(39008)), "XBMC.RunPlugin(" + url + ")"))
 
         ''' RENAME '''
         url = self.make_url(Mode.PLAYLIST_RENAME)
-        menuItems.append((qobuz.utils.color(color, qobuz.lang(39009).encode('utf8', 'replace') + ': ') + label, "XBMC.RunPlugin("+url+")"))
+        menuItems.append((qobuz.utils.color(color, qobuz.lang(39009).encode('utf8', 'replace') + ': ') + label, "XBMC.RunPlugin(" + url + ")"))
 
         ''' REMOVE '''
         url = self.make_url(Mode.PLAYLIST_REMOVE)
-        menuItems.append((qobuz.utils.color(color_warn, qobuz.lang(39010).encode('utf8', 'replace') + ': ') + label, "XBMC.RunPlugin("+url+")"))
-        
-        
+        menuItems.append((qobuz.utils.color(color_warn, qobuz.lang(39010).encode('utf8', 'replace') + ': ') + label, "XBMC.RunPlugin(" + url + ")"))
+
+
     def remove_tracks(self, tracks_id):
         import qobuz, xbmc
         info(self, "Removing tracks: " + tracks_id)
@@ -185,8 +221,8 @@ class Node_playlist(Node):
                 warn(self, "No node type...abort")
                 return False
             id = None
-            try: id = self.get_parameter('nid')        
-            except: pass 
+            try: id = self.get_parameter('nid')
+            except: pass
             depth = -1
             try: depth = int(self.get_parameter('depth'))
             except: pass
@@ -202,7 +238,7 @@ class Node_playlist(Node):
             if render.root.type & NodeFlag.TYPE_TRACK:
                 flags = NodeFlag.TYPE_TRACK
             ret = render.root.build_down(dir, depth, flags)
-            if not ret: 
+            if not ret:
                 dir.end_of_directory()
                 return False
             trackids = []
@@ -221,7 +257,7 @@ class Node_playlist(Node):
             pl.delete_cache()
             dir.end_of_directory()
             return True
-            
+
     def add_as_new_playlist(self):
         from gui.directory import Directory
         from user_playlists import Node_user_playlists
@@ -233,8 +269,8 @@ class Node_playlist(Node):
             warn(self, "No node type...abort")
             return False
         id = None
-        try: id = self.get_parameter('nid')        
-        except: pass 
+        try: id = self.get_parameter('nid')
+        except: pass
         depth = -1
         try: depth = int(self.get_parameter('depth'))
         except: pass
