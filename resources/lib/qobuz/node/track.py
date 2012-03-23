@@ -66,14 +66,8 @@ class Node_track(Node):
     def make_url(self, mode = Mode.PLAY):
         return super(Node_track, self).make_url(mode)
 
-    def get_label(self, format = "%a - %t"):
+    def get_label(self):
         return "%s - %s" % (self.get_artist(), self.get_title())
-        format = format.replace("%a", self.get_artist())
-        format = format.replace("%t", self.get_title())
-        format = format.replace("%A", self.get_album())
-        format = format.replace("%n", self.get_track_number())
-        format = format.replace("%g", self.get_genre())
-        return format
 
     def is_sample(self):
         streamtype = self.get_property('streamtype')
@@ -82,13 +76,10 @@ class Node_track(Node):
         return False
 
     def get_composer(self):
-        return ''
-        return self.db_row['composer']
-        #return self.get_property(('composer', 'name'))
+        return self.db_row['composer_name']
 
     def get_interpreter(self):
-        return ''
-        return self.get_property(('interpreter', 'name'))
+        return self.db_row['interpreter_name']
 
     def get_album(self):
         return ''
@@ -136,9 +127,12 @@ class Node_track(Node):
         return data['streaming_url']
 
     def get_artist(self):
-        types = ['artist', 'interpreter', 'composer']
+        types = ['artist_name', 'interpreter_name', 'composer_name']
         for type in types:
-            if type in self.db_row and self.db_row[type]: return self.db_row[type]
+            print "Type: " + type
+            if type in self.db_row.keys() and self.db_row[type]:
+                print "GABOUGGGGGGGGGGGGGGG"
+                return self.db_row[type]
         return 'Unknow artist'
 
     def get_artist_id(self):
@@ -209,7 +203,7 @@ class Node_track(Node):
         if not row:
             warn(self, "Cannot make item without data")
             return None
-        print "GOOOOOOOOOOOOOOOOT: " + pprint.pformat(row)
+        print "GOOOOOOOOOOOOOOOOT: " + pprint.pformat(row.keys())
         self.db_row = row
         media_number = self.get_media_number()
         if not media_number: media_number = 1

@@ -92,24 +92,6 @@ class Node_playlist(Node):
             node = Node_track()
             node.set_id(row['id'])
             self.add_child(node)
-#            print pprint.pformat(row)
-#            node = None
-#            if self.packby == 'album':
-#                jalbum = jtrack['album']
-#                if jalbum['id'] in albumseen: continue
-#                keys = [ 'artist', 'interpreter', 'composer']
-#                for k in keys:
-#                    if k in jtrack: jalbum[k] = jtrack[k]
-#                if 'image' in jtrack: jalbum['image'] = jtrack['image']
-#                node = Node_product()
-#                node.set_data(jalbum)
-#                albumseen[jalbum['id']] = node
-#            else:
-#                node = Node_track()
-#                node.set_data(jtrack)
-#            self.add_child(node)
-#        del self._data['tracks']
-
 
     def _build_down_ori(self, xbmc_directory, lvl, flag = None):
         info(self, "Build-down playlist")

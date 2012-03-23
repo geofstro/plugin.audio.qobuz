@@ -8,7 +8,7 @@ class Track(Itable):
         self.table_name = 'track'
         self.pk = 'id'
         self.fields_name = {'id'               : {'jsonmap': 'id', 'sqltype': 'INTEGER PRIMARY KEY'},
-                            'album_id'        : {'jsonmap': ('album', 'id'), 'sqltype':  'INTEGER'},
+                            'product_id'        : {'jsonmap': ('album', 'id'), 'sqltype':  'INTEGER'},
                             'composer_id'        : {'jsonmap': ('composer', 'id'), 'sqltype':  'INTEGER'},
                             'copyright'          : {'jsonmap': 'copyright', 'sqltype': 'VARCHAR'},
                             'duration'           : {'jsonmap': 'duration', 'sqltype': 'INTEGER'},

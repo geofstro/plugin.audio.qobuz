@@ -77,6 +77,7 @@ class Node_user_playlists(Node):
         try: cpls_id = jcurrent_playlist['id']
         except: pass
         for playlist in data:
+            #print "PLAYLIST: " + pprint.pformat(playlist)
             node = Node_playlist()
             node.set_data(playlist)
             if self.display_product_cover:

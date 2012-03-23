@@ -9,6 +9,7 @@ from track import Track
 from product import Product
 from artist import Artist
 from genre import Genre
+from label import Label
 
 class Manager():
 
@@ -20,6 +21,7 @@ class Manager():
                        'product':  Product(),
                        'artist': Artist(),
                        'genre': Genre(),
+                       'label': Label()
                        }
         self.auto_create = True
 
@@ -72,10 +74,18 @@ class Manager():
 
     def get_track(self, id):
         cursor = self.handle.cursor()
-        query = "SELECT * FROM track as t " \
-        "LEFT JOIN product as p " \
-        "ON t.album_id = p.id " \
-        "WHERE t.id = ? "
+        query = "SELECT t.id as id, t.copyright AS copyright, " \
+        "t.duration AS duration, t.media_number AS media_number," \
+        "t.streaming_type AS streaming_type, t.title as title, " \
+        "t.track_number AS track_number, t.version AS version, " \
+        "t.work AS work, " \
+        "p.image AS image, " \
+        "ai.name AS interpreter_name " \
+        "FROM track AS t, " \
+        "product AS p, " \
+        "artist AS ai, artist AS ac " \
+        "WHERE t.product_id = p.id AND (t.interpreter_id IS NULL OR t.interpreter_id = ai.id) AND (t.composer_id IS NULL OR t.composer_id = ac.id) " \
+        "AND t.id = ? "
         print "Query: " + query
         cursor.execute(query, (id,))
         row = cursor.fetchone()
